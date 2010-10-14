@@ -1,5 +1,8 @@
 package net.syntheum.exmlrpc;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.metadata.XmlRpcSystemImpl;
 import org.apache.xmlrpc.server.XmlRpcHandlerMapping;
@@ -21,7 +24,12 @@ public class Servlet extends XmlRpcServlet
     /**
      * 
      */
-    Injector injector;
+    private final Injector injector;
+    
+    /**
+     * 
+     */
+    private List<Class<?>> serviceClasses;
     
     /**
      * 
@@ -29,6 +37,25 @@ public class Servlet extends XmlRpcServlet
     public Servlet(Injector injector)
     {
     	this.injector = injector;
+    	this.serviceClasses = new LinkedList<Class<?>>();
+    }
+    
+    
+    /**
+     * 
+     */
+    public void registerClass(Class<?> clazz)
+    {
+    	this.serviceClasses.add(clazz);
+    }
+    
+    
+    /**
+     * 
+     */
+    public Class<?>[] getRegisteredClasses()
+    {
+    	return this.serviceClasses.toArray(new Class<?>[this.serviceClasses.size()]);
     }
 
 
@@ -41,13 +68,8 @@ public class Servlet extends XmlRpcServlet
     {
         CustomRpcMapping mapping = new CustomRpcMapping(this.injector);
 
-        Class<?>[] serviceClasses = {
-        		net.syntheum.exmlrpc.services.Calculator.class,
-        		net.syntheum.exmlrpc.services.Stack.class
-        };
-
         mapping.setTypeConverterFactory(getXmlRpcServletServer().getTypeConverterFactory());
-        mapping.initServiceClasses(serviceClasses);
+        mapping.initServiceClasses(getRegisteredClasses());
 
         XmlRpcSystemImpl.addSystemHandler(mapping);
         return mapping;

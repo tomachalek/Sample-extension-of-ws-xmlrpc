@@ -49,7 +49,11 @@ public class App {
     {
         this.server = new Server(8080);
         this.servletContext = new Context(server, "/", Context.SESSIONS);
+        
         Servlet servlet = new Servlet(injector);
+        servlet.registerClass(net.syntheum.exmlrpc.services.Calculator.class);
+		servlet.registerClass(net.syntheum.exmlrpc.services.Stack.class);
+        
         this.servletContext.addServlet(new ServletHolder(servlet), "/*");
         this.server.start();
     }
